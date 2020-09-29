@@ -8,10 +8,8 @@ module.exports = function(RED) {
     }
     RED.nodes.registerType("nest-config",NestNode,{
         credentials: {
+            projectid: { type:"text" }, 
             clientid: { type:"text" },
-            clientsecret: { type: "text" },
-            pin: { type:"password" },
-            accesstoken: { type:"password" },
         }
     });
 
@@ -127,12 +125,13 @@ module.exports = function(RED) {
     RED.nodes.registerType("nest request",NestRequestNode);
 
     // a RED http endpoint (express really) to call to get around same origin browser restrictions
-    RED.httpAdmin.get('/nest-credentials/:id/:cid/:csec/:pin/auth', function(req, res){
+    RED.httpAdmin.get('/nest-credentials/:id/:pid/:cid/', function(req, res){
         // if the creds are good, try and exchange them for an access token
         if (  req.params.cid && req.params.csec && req.params.pin ) {
             // call nest API to exchange the one time code for an access token
-            var url = 'https://api.home.nest.com/oauth2/access_token?client_id=' + req.params.cid + '&code=' + req.params.pin + '&client_secret=' + req.params.csec + '&grant_type=authorization_code'; 
-            
+//            var url = 'https://api.home.nest.com/oauth2/access_token?client_id=' + req.params.cid + '&code=' + req.params.pin + '&client_secret=' + req.params.csec + '&grant_type=authorization_code'; 
+            var url = 'https://nestservices.google.com/partnerconnections/' + req.params.pid + '/auth?redirect_uri=https://www.google.com&access_type=offline&prompt=consent&client_id=' + req.params.cid + '&response_type=code&scope=https://www.googleapis.com/auth/sdm.service';
+
             nest.post(url,function(error, response, body) {
                 if (error){
                     util.log('[nest] Error in nest post: ' + error);
